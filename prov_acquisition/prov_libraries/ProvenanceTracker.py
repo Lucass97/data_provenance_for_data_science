@@ -97,7 +97,7 @@ class ProvenanceTracker:
 
         self.neo4j = Neo4jConnection(uri="bolt://localhost",
                                      user="neo4j",
-                                     pwd="admin")
+                                     pwd="adminadmin")
 
         self.neo4j.delete_all()
 

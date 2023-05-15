@@ -66,16 +66,16 @@ class Neo4jConnection:
     @timing
     def create_constraint(self, session=None):
 
-        query = """DROP CONSTRAINT ON (a:Activity) ASSERT a.id IS UNIQUE"""
+        query = """DROP CONSTRAINT constraint_activity_id"""
         self.query(query=query, parameters=None, session=session)
 
-        query = """DROP CONSTRAINT ON (e:Entity) ASSERT e.id IS UNIQUE"""
+        query = """DROP CONSTRAINT constraint_entity_id"""
         self.query(query=query, parameters=None, session=session)
 
-        query = """CREATE CONSTRAINT constraint_activity_id ON (a:Activity) ASSERT a.id IS UNIQUE"""
+        query = """CREATE CONSTRAINT constraint_activity_id FOR (a:Activity) REQUIRE a.id IS UNIQUE"""
         self.query(query=query, parameters=None, session=session)
 
-        query = """CREATE CONSTRAINT constraint_entity_id ON (e:Entity) ASSERT e.id IS UNIQUE"""
+        query = """CREATE CONSTRAINT constraint_entity_id FOR (e:Entity) REQUIRE e.id IS UNIQUE"""
         self.query(query=query, parameters=None, session=session)
 
     @timing
