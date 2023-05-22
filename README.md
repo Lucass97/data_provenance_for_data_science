@@ -4,7 +4,7 @@ Backend with the purpose of capturing data provenance and metadata of a preproce
 ## Getting Started
 
 ### Requirements
-- neo4j >= 4.4.x
+- neo4j >= 5.7.x
 - pandas 1.5.0
 
 > For further details, refer to the [requirements.txt](requirements.txt) file.
@@ -24,28 +24,43 @@ pip install -r requirements.txt
 
 ### Run demo
 ```shell
-python3 main.py
+cd demos
+python3 demo_shell_numerical.py
 ```
 
 ### Example
-``` python
-# Create dataframe df
-df = pd.DataFrame(np.random.randint(0, 10, size=(10, 4)), columns=list('ABCD')).astype(float)
-df['D'] = np.nan
-df[df < 7] = np.nan
+```python
 
-# Create dataframe df2
-df2 = pd.DataFrame(np.random.randint(0, 10, size=(10, 4)), columns=list('AEFG')).astype(float)
+df = pd.DataFrame({'key1': [0, 0, 1, 2, 0],
+                    'key2': [0, np.nan, 0, 1, 0],
+                    'A': [0, 1, 2, 3, 4],
+                    'B': [0, 1, 2, 3, 4]
+                    })
+right = pd.DataFrame({'key1': [0, np.nan, 1, 2 ],
+                        'key2': [0, 4, 0, 0],
+                        'A': [0, 1, 2, 3],
+                        'D': [0, np.nan, 2, 3],
+                        'C': [0, 1, 2, 3]})
+df2 = pd.DataFrame({'key1': [0, 5, 7, 10, 1],
+                    'key2': [0, 4, 2, 1, 0],
+                    'E': [1, 1, 2, 3, 9],
+                    'F': [0, 1, 2, 3, 4]
+                    })
 
-# Create ProvenanceTracker object
-tracker = ProvenanceTracker(df)
+# Create provenance tracker
+tracker = ProvenanceTracker()
+
+# Create tracked dataframe
+df, right, df2 = tracker.subscribe([df, right, df2])
 
 # Pipeline
-tracker.df_input.append({'A': 5}, ignore_index=True)
-tracker.df_input.applymap(func=lambda x: 2 if pd.isnull(x) else x // 3)
-tracker.df_input.merge(right=df2, on='A', how='inner')
-tracker.df_input.drop('A', axis=1, )
 
+# Instance generation
+df = df.append({'key2': 4}, ignore_index=True)
+# Join
+df = df.merge(right=right, on=['key1', 'key2'], how='left')
+# Imputation
+df = df.fillna(0)
 ```
 
 Use the property ```tracker.dataframe_tracking = False``` to temporarily disable provenance tracking.

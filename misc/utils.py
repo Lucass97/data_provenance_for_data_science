@@ -1,64 +1,36 @@
-import logging
-import time
-from datetime import timedelta
 import importlib
-from typing import Optional
 import math
+import re
+from typing import Optional, Dict, List
 
 
-def timing(f):
+def convert(value: any, t: str) -> any:
     """
-    Misura il tempo di esecuzione di una funzione.
+    Converts a value to the specified type.
 
-    """
-
-    def wrap(*args, **kwargs):
-        start_time = time.time()
-        result = f(*args, **kwargs)
-        elapsed_time = (time.time() - start_time)
-
-        logging.info(msg=f' {f.__name__} function took {str(timedelta(seconds=elapsed_time))}')
-
-        return result
-
-    return wrap
-
-
-def suppress_tracking(f):
-    """
-    Disabilità il tracciamento del tracker prima dell'esecuzione della funzione.
-
+    :param value: The value to be converted.
+    :param t: The target type.
+    :return: The converted value.
     """
 
-    def wrap(*args, **kwargs):
-        tracker = args[0]
-        tracker.enable_dataframe_warning_msg, tracker.dataframe_tracking, = False, False
-        result = f(*args, **kwargs)
-        tracker.dataframe_tracking, tracker.enable_dataframe_warning_msg = True, True
-
-        return result
-
-    return wrap
-
-
-def convert(value: any, t: str):
     module = importlib.import_module("numpy")
     class_ = getattr(module, t)
     return class_(value)
 
 
-def convert_to_int_no_decimal(value: float):
+def convert_to_int_no_decimal(value: float) -> int | float:
     """
-    Converte un valore float in int solo se questo ha parte decimale pari a 0.
-    In tutti i restanti casi la funzione restituisce il valore invariato.
+    Converts a float value to an int if the decimal part is 0.
+    Returns the value unchanged in all other cases.
 
-    esempi:
+    Examples:
         - 3.0 -> 3
         - 3.2 -> 3.2
         - 3 -> 3
         - '3.0' -> '3.0'
 
-    :param value: valore da convertire.
+    :param value: The value to convert.
+    :return: The converted value.
     """
     if not isinstance(value, float):
         return value
@@ -69,8 +41,15 @@ def convert_to_int_no_decimal(value: float):
     return value
 
 
-def extract_used_features(code: str, features) -> Optional[list]:
-    import re
+def extract_used_features(code: str, features: List[str]) -> Optional[list]:
+    """
+    Extracts used features from code.
+
+    :param code: The code string.
+    :param features: The features to search for.
+    :return: A list of extracted features.
+    """
+
     eq = code.split('=')
     first, second = eq[0], eq[1]
 
@@ -89,17 +68,40 @@ def extract_used_features(code: str, features) -> Optional[list]:
     return result
 
 
-def invert_dictionary(dict1: dict):
-    return {v: k for k, v in dict1.items()}
+def invert_dict(dictionary: Dict[int, any]) -> Dict[any, int]:
+    """
+    Inverts a dictionary by swapping keys and values.
+
+    :param dictionary: The input dictionary.
+    :return: The inverted dictionary.
+    """
+
+    inverted_dict = {}
+    for key, value in dictionary.items():
+        inverted_dict.setdefault(value, set()).add(key)
+    return inverted_dict
 
 
-def keys_mapping(dict1: dict, dict2: dict):
+def keys_mapping(dict1: Dict[int, any], dict2: Dict[any, any]) -> Dict[int, any]:
+    """
+    Maps keys from dict1 to keys from dict2.
+
+    :param dict1: The first dictionary.
+    :param dict2: The second dictionary.
+    :return: A dictionary containing the mapping between keys from dict1 and dict2.
+    """
+
     result = dict()
-    dict2 = {v: k for k, v in dict2.items()}
+
+    dict2 = invert_dict(dict2)
 
     for key1, value in dict1.items():
         key2 = dict2.get(value, None)
-        if key2:
-            result[key1] = key2
+        if key2 is None:
+            continue
+        if key1 in key2:
+            result[key1] = key1
+        else:
+            result[key1] = key1
 
     return result
