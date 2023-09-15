@@ -37,4 +37,3 @@ class CustomLogger(logging.Logger):
         self.setLevel(level)
         for handler in self.handlers:
             handler.setLevel(level)
-

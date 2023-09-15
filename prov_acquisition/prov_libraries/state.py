@@ -262,6 +262,7 @@ class DataFrameState():
         """
         self.hash_df_output = self.df_output.copy().apply(
             lambda x: sum([hash(str(convert_to_int_no_decimal(e))) for e in x.values]), axis=0)
+        print("ccc", self.df_output.copy())
         return self.hash_df_output
 
     def update_hash_df_input(self) -> any:
@@ -298,6 +299,7 @@ class DataFrameState():
         self.hash_df_output_common_index = pd.concat(
             [hash_non_null, hash_null])
 
+        print("common", self.hash_df_output_common_index)
         return self.hash_df_output_common_index
 
     def update_hash_row(self) -> Dict[int, any]:

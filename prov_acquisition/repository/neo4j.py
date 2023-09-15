@@ -2,11 +2,10 @@ from multiprocessing import cpu_count
 from multiprocessing.dummy import Pool
 from typing import List, Optional
 
-from neo4j import GraphDatabase, Session
-
+import prov_acquisition.constants as constants
 from misc.decorators import timing, Singleton
 from misc.logger import CustomLogger
-import prov_acquisition.constants as constants
+from neo4j import GraphDatabase, Session
 
 
 @Singleton
@@ -15,7 +14,7 @@ class Neo4jConnector:
     Class defining a connector for Neo4j.
     """
 
-    def __init__(self, uri:str, user:str, pwd:str) -> None:
+    def __init__(self, uri: str, user: str, pwd: str) -> None:
         self.__uri = uri
         self.__user = user
         self.__pwd = pwd
@@ -126,7 +125,7 @@ class Neo4jQueries:
         query = '''DROP CONSTRAINT ''' + constants.ACTIVITY_CONSTRAINT + ''''''
         self.__query_executor.query(query=query, parameters=None, session=session)
 
-        query = '''DROP CONSTRAINT ''' + constants.ENTITY_CONSTRAINT 
+        query = '''DROP CONSTRAINT ''' + constants.ENTITY_CONSTRAINT
         self.__query_executor.query(query=query, parameters=None, session=session)
 
         query = '''CREATE CONSTRAINT ''' + constants.ACTIVITY_CONSTRAINT + ''' FOR (a:''' + constants.ACTIVITY_LABEL + ''') REQUIRE a.id IS UNIQUE'''
@@ -150,7 +149,7 @@ class Neo4jQueries:
                 DELETE
                 n;
                 '''
-        
+
         self.__query_executor.query(query, parameters=None, session=session)
 
     @timing
@@ -167,7 +166,7 @@ class Neo4jQueries:
                 CREATE (a:''' + constants.ACTIVITY_LABEL + ''')
                 SET a = row    
                 '''
-        
+
         self.__query_executor.query(query, parameters={'rows': activities}, session=session)
 
     @timing
@@ -183,7 +182,7 @@ class Neo4jQueries:
                 CREATE (e:''' + constants.ENTITY_LABEL + ''')
                 SET e=row
                 '''
-        
+
         self.__query_executor.insert_data_multiprocess(query=query, rows=entities)
 
     def udpate_entities(self, entities: List[any]) -> None:
@@ -216,7 +215,7 @@ class Neo4jQueries:
                 MATCH (e2:''' + constants.ENTITY_LABEL + ''' {id: row.used})
                 MERGE (e1)-[:''' + constants.DERIVATION_RELATION + ''']->(e2)
                 '''
-        
+
         self.__query_executor.insert_data_multiprocess(query=query, rows=derivations)
 
     @timing
@@ -264,7 +263,7 @@ class Neo4jQueries:
             self.__query_executor.insert_data_multiprocess(query=query3, rows=invalidated, act_id=act_id)
 
     @timing
-    def add_next_operations(self, next_operations:List[any], session=None) -> None:
+    def add_next_operations(self, next_operations: List[any], session=None) -> None:
         """
         Adds relationships between activities representing the order in which they occur.
 
@@ -295,7 +294,7 @@ class Neo4jFactory:
         :param pwd: The password for accessing the Neo4j database.
         :return: A Neo4jQueries object.
         """
-        
+
         connector = Neo4jConnector(uri, user, pwd)
         query_executor = Neo4jQueryExecutor(connector)
         queries = Neo4jQueries(query_executor)

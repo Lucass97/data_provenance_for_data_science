@@ -26,9 +26,10 @@ def suppress_tracking(f):
 
     def wrap(*args, **kwargs):
         tracker = args[0]
-        tracker.enable_dataframe_warning_msg, tracker.dataframe_tracking, = False, False
+        temp1, temp2 = tracker.enable_dataframe_warning_msg, tracker.dataframe_tracking
+        tracker.enable_dataframe_warning_msg, tracker.dataframe_tracking = False, False
         result = f(*args, **kwargs)
-        tracker.dataframe_tracking, tracker.enable_dataframe_warning_msg = True, True
+        tracker.dataframe_tracking, tracker.enable_dataframe_warning_msg = temp1, temp2
 
         return result
 

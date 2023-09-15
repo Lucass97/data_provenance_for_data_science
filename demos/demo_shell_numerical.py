@@ -4,7 +4,7 @@ sys.path.append("../")
 import pandas as pd
 import numpy as np
 
-from prov_acquisition.prov_libraries.provenance_tracker import ProvenanceTracker
+from prov_acquisition.prov_libraries.tracker import ProvenanceTracker
 
 def main() -> None:
 
