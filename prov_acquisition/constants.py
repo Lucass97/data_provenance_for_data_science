@@ -13,3 +13,6 @@ INVALIDATION_RELATION = 'WAS_INVALIDATED_BY'
 NEXT_RELATION = 'NEXT'
 ACTIVITY_CONSTRAINT = 'constraint_activity_id'
 ENTITY_CONSTRAINT = 'constraint_entity_id'
+
+FUNCTION_EXECUTION_TIMES = 'function_execution_times.log'
+NEO4j_QUERY_EXECUTION_TIMES = 'neo4j_query_execution_times.log'
