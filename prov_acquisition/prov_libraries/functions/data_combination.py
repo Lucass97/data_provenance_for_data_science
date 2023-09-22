@@ -141,7 +141,6 @@ def get_prov_join(tracker, dataframe_state_left: DataFrameState, dataframe_state
     for index in dataframe_state_right.index_col_to_input_entities:
         invalidated.append(dataframe_state_right.index_col_to_input_entities[index]['id'])
 
-    invalidated.extend(used_entities)
 
     # Create activity and relation in the global state
     act_id = tracker.global_state.create_activity(function_name=function_name, used_features=list(used_features),
