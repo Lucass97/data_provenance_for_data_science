@@ -93,3 +93,39 @@ def create_parser() -> argparse.ArgumentParser:
                         help="Specify the command")
 
     return parser
+
+
+def main() -> None:
+    parser = create_parser()
+    args = parser.parse_args()
+
+    # Create a Neo4j connection with the provided configuration parameters
+    client = QueryTester(neo4j_uri=args.uri, neo4j_user=args.user, neo4j_pwd=args.pwd)
+
+    # Call the corresponding function based on the chosen subcommand
+    if args.command == "all-transformations":
+        client.all_trasformations()
+    elif args.command == "why-provenance":
+        client.why_provenance()
+    elif args.command == "how-provenance":
+        client.how_provenance()
+    elif args.command == "dataset-level-feature-operation":
+        client.dataset_level_feature_operation()
+    elif args.command == "record-operation":
+        client.record_operation()
+    elif args.command == "record-invalidation":
+        client.record_invalidation()
+    elif args.command == "item-invalidation":
+        client.item_invalidation()
+    elif args.command == "item-level-feature-operation":
+        client.item_level_feature_operation()
+    elif args.command == "item-history":
+        client.item_history()
+    elif args.command == "record-history":
+        client.record_history()
+    elif args.command == "feature-invalidation":
+        client.feature_invalidation()
+
+
+if __name__ == '__main__':
+    main()

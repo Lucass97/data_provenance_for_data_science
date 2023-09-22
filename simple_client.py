@@ -257,8 +257,7 @@ def main() -> None:
     args = parser.parse_args()
 
     # Create a Neo4j connection with the provided configuration parameters
-    client = SimpleClient(neo4j_uri=args.uri,
-                          neo4j_user=args.user, neo4j_pwd=args.pwd)
+    client = SimpleClient(neo4j_uri=args.uri, neo4j_user=args.user, neo4j_pwd=args.pwd)
 
     # Call the corresponding function based on the chosen subcommand
     if args.command == "all-transformations":
