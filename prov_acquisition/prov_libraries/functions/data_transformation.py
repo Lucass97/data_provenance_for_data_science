@@ -1,11 +1,12 @@
 import pandas as pd
 
 from misc.decorators import timing, suppress_tracking
+from prov_acquisition import constants
 from prov_acquisition.prov_libraries.state import DataFrameState
 
 
 @suppress_tracking
-@timing
+@timing(log_file=constants.FUNCTION_EXECUTION_TIMES)
 def get_prov_value_change(tracker, dataframe_state: DataFrameState, extra_used_features: set = None) -> None:
     """
     Captures the provenance related to a change in the values of the DataFrame.

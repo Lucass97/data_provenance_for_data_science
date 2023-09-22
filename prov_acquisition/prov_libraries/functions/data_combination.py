@@ -1,11 +1,12 @@
 from typing import Set, Tuple
 
 from misc.decorators import suppress_tracking, timing
+from prov_acquisition import constants
 from prov_acquisition.prov_libraries.state import DataFrameState
 
 
 @suppress_tracking
-@timing
+@timing(log_file=constants.FUNCTION_EXECUTION_TIMES)
 def get_prov_join(tracker, dataframe_state_left: DataFrameState, dataframe_state_right: DataFrameState, how: str,
                   left_keys: Set[str], right_keys: Set[str], suffixes: Tuple[str],
                   _merge_feature: bool = False) -> None:
@@ -140,7 +141,6 @@ def get_prov_join(tracker, dataframe_state_left: DataFrameState, dataframe_state
 
     for index in dataframe_state_right.index_col_to_input_entities:
         invalidated.append(dataframe_state_right.index_col_to_input_entities[index]['id'])
-
 
     # Create activity and relation in the global state
     act_id = tracker.global_state.create_activity(function_name=function_name, used_features=list(used_features),

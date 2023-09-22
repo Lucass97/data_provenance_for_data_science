@@ -1,14 +1,16 @@
 from misc.decorators import suppress_tracking, timing
 from misc.utils import keys_mapping
+from prov_acquisition import constants
 from prov_acquisition.prov_libraries.state import DataFrameState
 
 
 @suppress_tracking
-@timing
+@timing(log_file=constants.FUNCTION_EXECUTION_TIMES)
 def get_prov_feature_rename(tracker, dataframe_state: DataFrameState) -> dict:
     """
     Captures the provenance related to the renaming of one or more features.
 
+    :param tracker: Provenance Tracker
     :param dataframe_state: Input and output DataFrame state.
     :return: dict - Mapping between the features of the output DataFrame and the input DataFrame.
     """

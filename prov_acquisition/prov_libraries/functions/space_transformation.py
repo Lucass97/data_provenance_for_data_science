@@ -1,10 +1,11 @@
 from misc.decorators import suppress_tracking, timing
 from misc.logger import CustomLogger
+from prov_acquisition import constants
 from prov_acquisition.prov_libraries.state import DataFrameState
 
 
 @suppress_tracking
-@timing
+@timing(log_file=constants.FUNCTION_EXECUTION_TIMES)
 def get_prov_space_transformation(tracker, dataframe_state: DataFrameState,
                                   feature_mapping: dict = {}) -> None:
     """
