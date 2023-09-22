@@ -77,7 +77,7 @@ class Neo4jQueryExecutor:
                 db=db) if db is not None else self.__connector.create_session()
             response = list(session.run(query, parameters))
         except Exception as e:
-            self.__logger.error('Query failed:', e)
+            self.__logger.error(f'Query failed: {e} {query}')
         finally:
             # Close the session if it was internally created
             if session is not None and not external_session:
@@ -393,6 +393,18 @@ class Neo4jQueries:
         query = '''  
                 MATCH p=(e:''' + constants.ENTITY_LABEL + '''{id:"''' + entity_id + '''"})-[r:''' + constants.DERIVATION_RELATION + '''*1..]-(m:''' + constants.ENTITY_LABEL + ''') RETURN DISTINCT e,r,m
                 '''
+        return self.__query_executor.query(query, session=session)
+    
+    @timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
+    def get_random_nodes(self, label: str, limit: int = 1, session=None):
+        query = '''  
+                MATCH (n:''' + label + ''')
+                WITH n, rand() AS random
+                ORDER BY random
+                LIMIT ''' + str(limit) + '''
+                RETURN n
+                '''
+        print(query)
         return self.__query_executor.query(query, session=session)
 
 
