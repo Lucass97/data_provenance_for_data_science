@@ -2,9 +2,13 @@ import argparse
 import inspect
 from typing import Callable
 
+import sys
+
+sys.path.append("../")
+
 from misc.print_records import print_records
 from prov_acquisition import constants
-from simple_client import SimpleClient
+from client.simple_client import SimpleClient
 
 
 class QueryTester(SimpleClient):
@@ -83,6 +87,7 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument("--uri", default="bolt://localhost", help="Neo4j URI")
     parser.add_argument("--user", default="neo4j", help="Neo4j username")
     parser.add_argument("--pwd", default="adminadmin", help="Neo4j password")
+    parser.add_argument("--limit", default=3, help="Random entities to obtain")
 
     # Positional argument for the command
     parser.add_argument("command", choices=["all-transformations", "why-provenance", "how-provenance",
@@ -100,7 +105,7 @@ def main() -> None:
     args = parser.parse_args()
 
     # Create a Neo4j connection with the provided configuration parameters
-    client = QueryTester(neo4j_uri=args.uri, neo4j_user=args.user, neo4j_pwd=args.pwd)
+    client = QueryTester(neo4j_uri=args.uri, neo4j_user=args.user, neo4j_pwd=args.pwd, limit=args.limit)
 
     # Call the corresponding function based on the chosen subcommand
     if args.command == "all-transformations":

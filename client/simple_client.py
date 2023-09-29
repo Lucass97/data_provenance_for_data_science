@@ -5,6 +5,8 @@ from misc.logger import CustomLogger
 from misc.print_records import print_records, print_records_triplets
 from misc.colors import Colors
 
+import sys
+sys.path.append("../")
 
 class SimpleClient:
     """
