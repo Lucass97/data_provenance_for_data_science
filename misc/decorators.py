@@ -29,7 +29,6 @@ def timing(log_file: str = None):
             :return: The result of the wrapped function.
             """
             tracker = args[0]
-            print(f.__module__)
 
             start_time = time.time()
             result = f(*args, **kwargs)

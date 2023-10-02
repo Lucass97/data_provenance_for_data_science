@@ -1,12 +1,13 @@
 import argparse
 
-from prov_acquisition.repository.neo4j import Neo4jFactory
+import sys
+sys.path.append("../")
+
+from prov_acquisition.repository.neo4j import Neo4jFactory, Neo4jConnector
 from misc.logger import CustomLogger
 from misc.print_records import print_records, print_records_triplets
 from misc.colors import Colors
 
-import sys
-sys.path.append("../")
 
 class SimpleClient:
     """
@@ -31,9 +32,10 @@ class SimpleClient:
         self._neo4j = Neo4jFactory.create_neo4j_queries(uri=neo4j_uri,
                                                         user=neo4j_user,
                                                         pwd=neo4j_pwd)
+        self._session = Neo4jConnector().create_session()
         self._logger = CustomLogger(self.__class__)
 
-    def all_transformations(self, tracker_id: str) -> None:
+    def all_transformations(self) -> None:
         """
         PQ1 - Retrieve all transformations for a given tracker ID.
 
@@ -41,9 +43,9 @@ class SimpleClient:
         """
 
         self._logger.info(f'{Colors.BLUE}PQ1 - All-transformation query{Colors.RESET}')
-        self._logger.info(f'The {tracker_id} dataframe feature was modified by the following entities:')
+        self._logger.info(f'The dataset was modified by the following entities:')
 
-        records = self._neo4j.all_transformations(tracker_id)
+        records = self._neo4j.all_transformations()
         print_records(logger=self._logger, records=records, key='a', title='Activity')
 
     def why_provenance(self, entity_id: str) -> None:
@@ -56,7 +58,7 @@ class SimpleClient:
         self._logger.info(f'{Colors.BLUE}PQ2 - Why-provenance query{Colors.RESET}')
         self._logger.info(f'The {entity_id} entity was influenced by the following entities:')
 
-        records = self._neo4j.why_provenance(entity_id)
+        records = self._neo4j.why_provenance(entity_id, session=self._session)
         print_records(logger=self._logger, records=records, key='m', title='Entity')
 
     def how_provenance(self, entity_id: str) -> None:
@@ -69,7 +71,7 @@ class SimpleClient:
         self._logger.info(f'{Colors.BLUE}PQ3 - How-provenance query{Colors.RESET}')
         self._logger.info(f'The {entity_id} entity was created by the following activities:')
 
-        records = self._neo4j.how_provenance(entity_id=entity_id)
+        records = self._neo4j.how_provenance(entity_id=entity_id, session=self._session)
 
         print_records(logger=self._logger, records=records, key='m', title='Entity')
         print_records(logger=self._logger, records=records, key='a', title='Activity')
@@ -84,7 +86,7 @@ class SimpleClient:
         self._logger.info(f'{Colors.BLUE}PQ4 - Dataset-level Feature Operation query{Colors.RESET}')
         self._logger.info(f'The {feature} feature was used by the following activities:')
 
-        records = self._neo4j.dataset_level_feature_operation(feature=feature)
+        records = self._neo4j.dataset_level_feature_operation(feature=feature, session=self._session)
         print_records(logger=self._logger, records=records, key='a', title='Activity')
 
     def record_operation(self, index: int) -> None:
@@ -97,7 +99,7 @@ class SimpleClient:
         self._logger.info(f'{Colors.BLUE}PQ5 - Record Operation query{Colors.RESET}')
         self._logger.info(f'The {index} record was used by the following activities:')
 
-        records = self._neo4j.record_operation(index=index)
+        records = self._neo4j.record_operation(index=index, session=self._session)
         print_records(logger=self._logger, records=records, key='a', title='Activity')
 
     def item_level_feature_operation(self, entity_id: str) -> None:
@@ -110,7 +112,7 @@ class SimpleClient:
         self._logger.info(f'{Colors.BLUE}PQ6 - Item-level Feature Operation query{Colors.RESET}')
         self._logger.info(f'The {entity_id} entity was used by the following activities:')
 
-        records = self._neo4j.item_level_feature_operation(entity_id=entity_id)
+        records = self._neo4j.item_level_feature_operation(entity_id=entity_id, session=self._session)
         print_records(logger=self._logger, records=records, key='a', title='Activity')
 
     def feature_invalidation(self, feature: str) -> None:
@@ -123,7 +125,7 @@ class SimpleClient:
         self._logger.info(f'{Colors.BLUE}PQ7 - Feature invalidation query{Colors.RESET}')
         self._logger.info(f'The {feature} feature was invalidated by the following activities:')
 
-        records = self._neo4j.feature_invalidation(feature=feature)
+        records = self._neo4j.feature_invalidation(feature=feature, session=self._session)
         print_records(logger=self._logger, records=records, key='a', title='Activity')
 
     def record_invalidation(self, index: int) -> None:
@@ -136,7 +138,7 @@ class SimpleClient:
         self._logger.info(f'{Colors.BLUE}PQ8 - Record invalidation query{Colors.RESET}')
         self._logger.info(f'The record identified by index {index} was invalidated by the following activities:')
 
-        records = self._neo4j.record_invalidation(index=index)
+        records = self._neo4j.record_invalidation(index=index, session=self._session)
         print_records(logger=self._logger, records=records, key='a', title='Activity')
 
     def item_invalidation(self, entity_id: str) -> None:
@@ -149,7 +151,7 @@ class SimpleClient:
         self._logger.info(f'{Colors.BLUE}PQ9 - Item invalidation query{Colors.RESET}')
         self._logger.info(f'The entity {entity_id} was invalidated by the following activities:')
 
-        records = self._neo4j.item_invalidation(entity_id=entity_id)
+        records = self._neo4j.item_invalidation(entity_id=entity_id, session=self._session)
         print_records(logger=self._logger, records=records, key='a', title='Activity')
 
     def item_history(self, entity_id: str) -> None:
@@ -162,7 +164,7 @@ class SimpleClient:
         self._logger.info(f'{Colors.BLUE}PQ10 - Item History query{Colors.RESET}')
         self._logger.info(f'The history related to the entity {Colors.YELLOW}{entity_id}{Colors.RESET} is as follows:')
 
-        records = self._neo4j.item_history(entity_id)
+        records = self._neo4j.item_history(entity_id=entity_id, session=self._session)
 
         print_records_triplets(logger=self._logger, records=records, key="r", highlights={'id': entity_id},
                                graph_file="item_history.html")
@@ -177,9 +179,30 @@ class SimpleClient:
         self._logger.info(f'{Colors.BLUE}PQ11 - Record History query{Colors.RESET}')
         self._logger.info(f'The history related to the record {Colors.YELLOW}{index}{Colors.RESET} is as follows:')
 
-        records = self._neo4j.record_history(index=index)
+        records = self._neo4j.record_history(index=index, session=self._session)
         print_records_triplets(logger=self._logger, records=records, key="r", highlights={'id': index},
                                graph_file="record_history.html")
+    
+    def feature_spread(self, feature: str):
+        """
+        """
+
+        self._logger.info(f'{Colors.BLUE}PQ12 - Feature Spread query{Colors.RESET}')
+        self._logger.info(f'The feature spread related to the feature {Colors.YELLOW}{feature}{Colors.RESET} is as follows:')
+        records = self._neo4j.feature_spread(feature=feature, session=self._session)
+
+        print_records(logger=self._logger, records=records, key='a', single_keys=['t', 'c'], title='Activity')
+
+    def dataset_spread(self):
+        """
+        """
+
+        self._logger.info(f'{Colors.BLUE}PQ13 - Dataset Spread query{Colors.RESET}')
+        self._logger.info(f'The datasaet spread related to the dataset is as follows:')
+        print(self._session)
+        records = self._neo4j.dataset_spread(session=self._session)
+
+        print_records(logger=self._logger, records=records, key='a', single_keys=['t', 'c'], title='Activity')
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -194,13 +217,10 @@ def create_parser() -> argparse.ArgumentParser:
 
     # Subparser for the "all-transformations" command
     all_transformations_parser = subparsers.add_parser("all-transformations",
-                                                       help="Set of operations applied to dataset and the features "
-                                                            "they affect")
-    all_transformations_parser.add_argument("--tracker-id", required=True, help="Tracker ID for the specified dataset")
+                                                       help="Set of operations applied to dataset and the features  they affect")
 
     # Subparser for the "why-provenance" command
-    why_provenance_parser = subparsers.add_parser("why-provenance",
-                                                  help="Return the input data that influenced the specified entity.")
+    why_provenance_parser = subparsers.add_parser("why-provenance", help="Return the input data that influenced the specified entity.")
     why_provenance_parser.add_argument("--entity-id", required=True, help="Entity ID for the why-provenance query")
 
     # Subparser for the "how-provenance" command
@@ -209,9 +229,7 @@ def create_parser() -> argparse.ArgumentParser:
 
     # Subparser for the "dataset-level-feature-operation" command
     dataset_level_feature_operation_parser = subparsers.add_parser("dataset-level-feature-operation")
-    dataset_level_feature_operation_parser.add_argument("--feature", required=True,
-                                                        help="Feature name for the dataset-level-feature-operation "
-                                                             "query")
+    dataset_level_feature_operation_parser.add_argument("--feature", required=True, help="Feature name for the dataset-level-feature-operation query")
 
     # Subparser for the "record-operation" command
     record_operation_parser = subparsers.add_parser("record-operation")
@@ -250,6 +268,14 @@ def create_parser() -> argparse.ArgumentParser:
     record_operation_parser = subparsers.add_parser("record-operation")
     record_operation_parser.add_argument("--index", required=True, type=int,
                                          help="Index for the record-operation query")
+    
+    # Subparser for the "feature-spread" command
+    feature_spread_parser = subparsers.add_parser("feature-spread")
+    feature_spread_parser.add_argument("--feature", required=True, type=str,
+                                         help="Feature name for the feature-spread query")
+    
+    # Subparser for the "dataset-spread" command
+    dataset_spread_parser = subparsers.add_parser("dataset-spread")
 
     return parser
 
@@ -284,6 +310,10 @@ def main() -> None:
         client.record_history(args.index)
     elif args.command == "feature-invalidation":
         client.feature_invalidation(args.feature)
+    elif args.command == "feature-spread":
+        client.feature_spread(args.feature)
+    elif args.command == "dataset-spread":
+        client.dataset_spread(args.tracker_id)
 
 
 if __name__ == '__main__':

@@ -4,26 +4,40 @@ from pyvis.network import Network
 from misc.colors import Colors
 
 
-def print_records(logger, records, key, title) -> None:
-    if len(records) == 0:
+def print_records(logger, records, key: str, single_keys: list = None, title: str = "Default Title") -> None:
+
+    records = list(records)
+
+    """if len(records) == 0:
         logger.info(f'No data')
-        return
+        return"""
 
     for i, record in enumerate(records):
 
         table_info = [[f'{title} #{i + 1}', '']]
 
-        element = record.data().get(key, None)
+        element = record.get(key, None)
+
+        other_elements = dict()
+        
+        if single_keys is not None:
+            for e in single_keys:
+                m = record.get(e, None)
+                other_elements[e] = m
 
         if element is None:
             continue
 
         for prop in element:
             table_info.append([prop, element[prop]])
+        
+        for prop in other_elements:
+            table_info.append([prop, other_elements[prop]])
 
         info = tabulate(table_info, headers="firstrow", tablefmt="fancy_grid")
 
         logger.info(f'\n{info}')
+
 
 
 def print_records_triplets(logger, records, key: str, highlights: dict, graph_file: str) -> None:
@@ -37,7 +51,7 @@ def print_records_triplets(logger, records, key: str, highlights: dict, graph_fi
                    'Relationship', f'Target Entity{Colors.RESET}']]
     for record in records:
 
-        activity = record.data()
+        activity = record
         for triple in activity[key]:
             source_node = triple[0]
             relationship = triple[1]

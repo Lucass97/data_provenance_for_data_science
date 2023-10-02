@@ -11,7 +11,8 @@ for COMMAND in "all-transformations" "why-provenance" "how-provenance" \
                "dataset-level-feature-operation" "record-operation" \
                "record-invalidation" "item-invalidation" \
                "item-level-feature-operation" "item-history" \
-               "record-history" "feature-invalidation"; do
+               "record-history" "feature-invalidation" \
+               "feature-spread" "dataset-spread"; do
 
     # Execute the corresponding command
     python3 query_tester.py --uri "$URI" --user "$USER" --pwd "$PWD" --limit "$LIMIT" "$COMMAND"
