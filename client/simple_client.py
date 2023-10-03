@@ -1,6 +1,7 @@
 import argparse
 
 import sys
+
 sys.path.append("../")
 
 from prov_acquisition.repository.neo4j import Neo4jFactory, Neo4jConnector
@@ -37,9 +38,8 @@ class SimpleClient:
 
     def all_transformations(self) -> None:
         """
-        PQ1 - Retrieve all transformations for a given tracker ID.
+        PQ1 - Retrieve all transformations for a given dataset.
 
-        :param tracker_id: The ID of the tracker to retrieve transformations for.
         """
 
         self._logger.info(f'{Colors.BLUE}PQ1 - All-transformation query{Colors.RESET}')
@@ -89,12 +89,14 @@ class SimpleClient:
         records = self._neo4j.dataset_level_feature_operation(feature=feature, session=self._session)
         print_records(logger=self._logger, records=records, key='a', title='Activity')
 
-    def record_operation(self, index: int) -> None:
+    def record_operation(self, index: any) -> None:
         """
         PQ5 - Retrieve record operation information for a given record index.
 
         :param index: The index of the record to retrieve operations for.
         """
+
+        index = str(index)
 
         self._logger.info(f'{Colors.BLUE}PQ5 - Record Operation query{Colors.RESET}')
         self._logger.info(f'The {index} record was used by the following activities:')
@@ -128,12 +130,14 @@ class SimpleClient:
         records = self._neo4j.feature_invalidation(feature=feature, session=self._session)
         print_records(logger=self._logger, records=records, key='a', title='Activity')
 
-    def record_invalidation(self, index: int) -> None:
+    def record_invalidation(self, index: any) -> None:
         """
         PQ8 - Retrieve record invalidation information for a given record index.
 
         :param index: The index of the record to retrieve invalidation information for.
         """
+
+        index = str(index)
 
         self._logger.info(f'{Colors.BLUE}PQ8 - Record invalidation query{Colors.RESET}')
         self._logger.info(f'The record identified by index {index} was invalidated by the following activities:')
@@ -169,12 +173,14 @@ class SimpleClient:
         print_records_triplets(logger=self._logger, records=records, key="r", highlights={'id': entity_id},
                                graph_file="item_history.html")
 
-    def record_history(self, index: int) -> None:
+    def record_history(self, index: any) -> None:
         """
         PQ11 - Retrieve record history information for a given record index.
 
         :param index: The index of the record to retrieve history information for.
         """
+
+        index = str(index)
 
         self._logger.info(f'{Colors.BLUE}PQ11 - Record History query{Colors.RESET}')
         self._logger.info(f'The history related to the record {Colors.YELLOW}{index}{Colors.RESET} is as follows:')
@@ -182,13 +188,14 @@ class SimpleClient:
         records = self._neo4j.record_history(index=index, session=self._session)
         print_records_triplets(logger=self._logger, records=records, key="r", highlights={'id': index},
                                graph_file="record_history.html")
-    
+
     def feature_spread(self, feature: str):
         """
         """
 
         self._logger.info(f'{Colors.BLUE}PQ12 - Feature Spread query{Colors.RESET}')
-        self._logger.info(f'The feature spread related to the feature {Colors.YELLOW}{feature}{Colors.RESET} is as follows:')
+        self._logger.info(
+            f'The feature spread related to the feature {Colors.YELLOW}{feature}{Colors.RESET} is as follows:')
         records = self._neo4j.feature_spread(feature=feature, session=self._session)
 
         print_records(logger=self._logger, records=records, key='a', single_keys=['t', 'c'], title='Activity')
@@ -220,7 +227,8 @@ def create_parser() -> argparse.ArgumentParser:
                                                        help="Set of operations applied to dataset and the features  they affect")
 
     # Subparser for the "why-provenance" command
-    why_provenance_parser = subparsers.add_parser("why-provenance", help="Return the input data that influenced the specified entity.")
+    why_provenance_parser = subparsers.add_parser("why-provenance",
+                                                  help="Return the input data that influenced the specified entity.")
     why_provenance_parser.add_argument("--entity-id", required=True, help="Entity ID for the why-provenance query")
 
     # Subparser for the "how-provenance" command
@@ -229,16 +237,17 @@ def create_parser() -> argparse.ArgumentParser:
 
     # Subparser for the "dataset-level-feature-operation" command
     dataset_level_feature_operation_parser = subparsers.add_parser("dataset-level-feature-operation")
-    dataset_level_feature_operation_parser.add_argument("--feature", required=True, help="Feature name for the dataset-level-feature-operation query")
+    dataset_level_feature_operation_parser.add_argument("--feature", required=True,
+                                                        help="Feature name for the dataset-level-feature-operation query")
 
     # Subparser for the "record-operation" command
     record_operation_parser = subparsers.add_parser("record-operation")
-    record_operation_parser.add_argument("--index", required=True, type=int,
+    record_operation_parser.add_argument("--index", required=True, type=any,
                                          help="Index for the record-operation query")
 
     # Subparser for the "record-invalidation" command
     record_invalidation_parser = subparsers.add_parser("record-invalidation")
-    record_invalidation_parser.add_argument("--index", required=True, type=int,
+    record_invalidation_parser.add_argument("--index", required=True, type=any,
                                             help="Index for the record-invalidation query")
 
     # Subparser for the "item-invalidation" command
@@ -257,7 +266,7 @@ def create_parser() -> argparse.ArgumentParser:
 
     # Subparser for the "record-history" command
     record_history = subparsers.add_parser("record-history")
-    record_history.add_argument("--index", required=True, type=int, help="Index for the record-history query")
+    record_history.add_argument("--index", required=True, type=any, help="Index for the record-history query")
 
     # Subparser for the "feature-invalidation" command
     feature_invalidation_parser = subparsers.add_parser("feature-invalidation")
@@ -266,14 +275,14 @@ def create_parser() -> argparse.ArgumentParser:
 
     # Subparser for the "record-operation" command
     record_operation_parser = subparsers.add_parser("record-operation")
-    record_operation_parser.add_argument("--index", required=True, type=int,
+    record_operation_parser.add_argument("--index", required=True, type=any,
                                          help="Index for the record-operation query")
-    
+
     # Subparser for the "feature-spread" command
     feature_spread_parser = subparsers.add_parser("feature-spread")
     feature_spread_parser.add_argument("--feature", required=True, type=str,
-                                         help="Feature name for the feature-spread query")
-    
+                                       help="Feature name for the feature-spread query")
+
     # Subparser for the "dataset-spread" command
     dataset_spread_parser = subparsers.add_parser("dataset-spread")
 
@@ -289,7 +298,7 @@ def main() -> None:
 
     # Call the corresponding function based on the chosen subcommand
     if args.command == "all-transformations":
-        client.all_trasformations(args.tracker_id)
+        client.all_trasformations()
     elif args.command == "why-provenance":
         client.why_provenance(args.entity_id)
     elif args.command == "how-provenance":
@@ -313,7 +322,7 @@ def main() -> None:
     elif args.command == "feature-spread":
         client.feature_spread(args.feature)
     elif args.command == "dataset-spread":
-        client.dataset_spread(args.tracker_id)
+        client.dataset_spread()
 
 
 if __name__ == '__main__':

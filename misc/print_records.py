@@ -6,11 +6,9 @@ from misc.colors import Colors
 
 def print_records(logger, records, key: str, single_keys: list = None, title: str = "Default Title") -> None:
 
-    records = list(records)
-
-    """if len(records) == 0:
+    if len(records) == 0:
         logger.info(f'No data')
-        return"""
+        return
 
     for i, record in enumerate(records):
 

@@ -14,7 +14,7 @@ DPDS (Data Provenance for Data Science) is a library capable of capturing fine-g
       - [Census Pipeline](demos/README.md#census-pipeline)
       - [Compas Pipeline](demos/README.md#compas-pipeline)
       - [German Pipeline](demos/README.md#german-pipeline)
-- [Simple Client](#simple-client)
+- [Simple Client](client/README.md)
    - [Provenance Queries](client/README.md#provenance-queries)
    - [Usage](client/README.md#usage)
       - [Command Line Arguments](client/README.md#command-line-arguments)
