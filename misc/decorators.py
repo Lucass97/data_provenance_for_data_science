@@ -29,6 +29,7 @@ def timing(log_file: str = None):
             :return: The result of the wrapped function.
             """
             tracker = args[0]
+            code = tracker.global_state.code
 
             start_time = time.time()
             result = f(*args, **kwargs)
@@ -38,7 +39,7 @@ def timing(log_file: str = None):
 
             if log_file is not None:
                 with open(log_file, 'a') as file:
-                    file.write(f'{f.__module__},{f.__name__},{elapsed_time}\n')
+                    file.write(f'{f.__module__};{f.__name__};{code};{elapsed_time}\n')
 
             return result
 

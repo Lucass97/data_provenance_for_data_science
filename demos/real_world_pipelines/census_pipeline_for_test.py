@@ -1,3 +1,4 @@
+from codecs import ignore_errors
 import sys
 
 sys.path.append("../../")
@@ -40,55 +41,54 @@ def run_pipeline(args) -> None:
     elif args.frac > 1.0:
         df = pd.concat([df] * int(args.frac), ignore_index=True)
         logger.info(f'The dataframe has been enlarged by ({int(args.frac)} times')
+    
+    df['index'] = df.index
 
     # Create provenance tracker
     tracker = ProvenanceTracker(save_on_neo4j=False)
+
+    logger.info(f'{df.columns}')
+    logger.info(f'{len(df)}')
+    #logger.info(f'{df.memory_usage()}')
     
     # Subscribe dataframe
     df = tracker.subscribe(df)
 
-    
-    logger.info(f' OPERATION C0 - Remove whitespace from 9 columns')
-
-    columns = ['workclass', 'education', 'marital-status', 'occupation', 'relationship', 'race', 'sex', 'native-country',
-           'label']
-
-    df[columns] = df[columns].applymap(str.strip)
-
-
-    logger.info(f' OPERATION C1 - Replace ? character for NaN value')
-    
-    df = df.replace('?', np.nan)
-    
-
-    logger.info(f' OPERATION C2 - One-hot encode 7 categorical features')
-
-    tracker.dataframe_tracking = False
-    
-    columns = ['workclass', 'education', 'marital-status', 'occupation', 'relationship', 'race', 'native-country']
-    columns = ['education']
-
-    for i, col in enumerate(columns):
-            
-        dummies = pd.get_dummies(df[col])
-        df_dummies = dummies.add_prefix(col + '_')
-        df = df.join(df_dummies)
-        
-        # Check last iteration:
-        if i == len(columns) - 1:
-            tracker.dataframe_tracking = True
-        
-        df = df.drop([col], axis=1)
-
-
-    logger.info(f' OPERATION C3 - Assign sex and label binary values 0 and 1')
-
-    df = df.replace({'sex': {'Male': 1, 'Female': 0}, 'label': {'<=50K': 0, '>50K': 1}})
-
-
-    logger.info(f' OPERATION C4 - Drop fnlwgt column')
+    logger.info(f' OPERATION DR - Drop fnlwgt column')
 
     df = df.drop(['fnlwgt'], axis=1)
+
+    logger.info(f' OPERATION FT - Assign sex and label binary values 0 and 1')
+
+    tracker.dataframe_tracking = False
+    df['sex'] = df['sex'].apply(str.strip)
+    tracker.dataframe_tracking = True
+    df = df.replace({'sex': {'Male': 1, 'Female': 0}})
+
+    logger.info(f' OPERATION I - Imputation')
+
+    df = df.fillna("?")
+
+    logger.info(f' OPERATION ST- Space transformation')
+
+    df["capital"] = df["capital-gain"] - df["capital-loss"]
+    
+    logger.info(f' OPERATION IG - Instance Generation')
+
+    df = df.append({'age': 77}, ignore_index=True)
+    
+    logger.info(f' OPERATION VT - Value Transformation')
+
+    df["hours-per-week"] = df["hours-per-week"] * 60
+    
+    logger.info(f' OPERATION JO - Join two records')
+
+    df = df.merge(right=df, on=['index'], how='left')
+    
+    logger.info(f' OPERATION AP - Append onto a table')
+
+    df.append(df, ignore_index=True)
+
 
 
 if __name__ == '__main__':

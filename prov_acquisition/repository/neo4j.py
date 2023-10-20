@@ -55,6 +55,30 @@ class Neo4jQueryExecutor:
         self.__connector = connector
         self.__logger = CustomLogger('ProvenanceTracker')
 
+    
+    def write_transaction(self, query: str) -> None:
+        
+        def transaction(tx) -> None:
+            tx.run(query)
+
+        with self.__connector.create_session(db=None) as session:
+            session.write_transaction(transaction)
+    
+    def write_transaction2(self, query: str, batch_size: int = 500):
+
+        def delete_batch(tx, query, batch_size):
+            result = tx.run(query, parameters={"batch_size": batch_size})
+            return len(list(result))
+
+        with self.__connector.create_session(db=None) as session:
+            while True:
+                result = session.write_transaction(delete_batch, query, batch_size)
+                print(result)
+                if result < batch_size:
+                    break
+
+
+
     def query(self, query: str, parameters: dict = None, db: str = None, session: Session = None) -> Optional[list]:
         """
         Executes a query. If the provided session is None, it creates a new session internally to execute the query.
@@ -153,12 +177,14 @@ class Neo4jQueries:
         """
 
         query = '''
-                MATCH(n)
-                DETACH
-                DELETE
-                n;
+                MATCH (n)
+                CALL { WITH n
+                DETACH DELETE n
+                } IN TRANSACTIONS OF 1000 ROWS;
                 '''
+
         self.logger.debug(msg=query)
+        #self.__query_executor.write_transaction2(query)
         self.__query_executor.query(query, parameters=None, session=session)
 
     @timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
@@ -268,9 +294,9 @@ class Neo4jQueries:
                     MERGE (e)-[:''' + constants.INVALIDATION_RELATION + ''']->(a)
                     '''
 
-            self.__logger.debug(msg=query1)
-            self.__logger.debug(msg=query2)
-            self.__logger.debug(msg=query3)
+            self.logger.debug(msg=query1)
+            self.logger.debug(msg=query2)
+            self.logger.debug(msg=query3)
 
             self.__query_executor.insert_data_multiprocess(query=query1, rows=used, act_id=act_id)
             self.__query_executor.insert_data_multiprocess(query=query2, rows=generated, act_id=act_id)
