@@ -1,11 +1,12 @@
 from typing import List
 
 from misc.decorators import suppress_tracking, timing
+from prov_acquisition import constants
 from prov_acquisition.prov_libraries.state import DataFrameState
 
 
 @suppress_tracking
-@timing
+@timing(log_file=constants.FUNCTION_EXECUTION_TIMES)
 def get_prov_from_aggregate(tracker, dataframe_state: DataFrameState, remaining_features: List[str]) -> None:
     """
     Captures the provenance related to an aggregate operation.

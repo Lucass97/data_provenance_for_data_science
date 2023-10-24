@@ -23,7 +23,7 @@ class ProvenanceTracker:
     Class that tracks changes in dataframes and traces provenance.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, save_on_neo4j: bool = True) -> None:
 
         self.logger = CustomLogger('ProvenanceTracker')
         self.logger.set_level(logging.DEBUG)
@@ -31,12 +31,27 @@ class ProvenanceTracker:
         self.__dataframe_tracking = True
         self.enable_dataframe_warning_msg = True
 
+        self.save_on_neo4j = save_on_neo4j
+
         self.global_state = GlobalState()
 
         self.neo4j = Neo4jFactory.create_neo4j_queries(uri="bolt://localhost",
                                                        user="neo4j",
                                                        pwd="adminadmin")
-        self.neo4j.delete_all()
+        if self.__save_on_neo4j:
+            self.neo4j.delete_all()
+
+    @property
+    def save_on_neo4j(self) -> bool:
+        return self.__save_on_neo4j
+    
+    @save_on_neo4j.setter
+    def save_on_neo4j(self, value: bool) -> None:
+        if value:
+            self.logger.warning(f'Enabled saving provenance to Neo4j!')
+        else:
+            self.logger.warning(f'Disabled saving provenance to Neo4j!')
+        self.__save_on_neo4j = value
 
     @property
     def dataframe_tracking(self) -> bool:
@@ -70,7 +85,6 @@ class ProvenanceTracker:
 
             # print('args', args)
             # print("kwargs", kwargs)
-            print(self.__dataframe_tracking)
 
             if callable(f):
 
@@ -239,8 +253,10 @@ class ProvenanceTracker:
 
         dataframe_state.hash_df_output = None
 
+        
+
         # Save to neo4j
-        if save:
+        if self.__save_on_neo4j:
 
             session = Neo4jConnector().create_session()
 
