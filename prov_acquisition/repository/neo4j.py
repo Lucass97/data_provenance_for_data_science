@@ -143,7 +143,7 @@ class Neo4jQueries:
         self.__query_executor = query_executor
         self.logger = CustomLogger("ProvenanceTracker")
 
-    @timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
+    #@timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
     def create_constraint(self, session=None) -> None:
         """
         Creates constraints for Neo4j nodes.
@@ -167,7 +167,7 @@ class Neo4jQueries:
                 ''') REQUIRE e.id IS UNIQUE'''
         self.__query_executor.query(query=query, parameters=None, session=session)
 
-    @timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
+    #@timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
     def delete_all(self, session=None):
         """
         Deletes all nodes and relationships in the database.
@@ -187,7 +187,7 @@ class Neo4jQueries:
         #self.__query_executor.write_transaction2(query)
         self.__query_executor.query(query, parameters=None, session=session)
 
-    @timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
+    #@timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
     def add_activities(self, activities: List[any], session=None) -> None:
         """
         Adds activities to the database.
@@ -204,7 +204,7 @@ class Neo4jQueries:
         self.logger.debug(msg=query)
         self.__query_executor.query(query, parameters={'rows': activities}, session=session)
 
-    @timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
+    #@timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
     def add_entities(self, entities: List[any]) -> None:
         """
         Adds entities to the database.
@@ -236,7 +236,7 @@ class Neo4jQueries:
         self.logger.debug(msg=query)
         self.__query_executor.insert_data_multiprocess(query=query, rows=entities)
 
-    @timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
+    #@timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
     def add_derivations(self, derivations: List[any]) -> None:
         """
         Adds derivations (relationships between entities) to the database.
@@ -254,7 +254,7 @@ class Neo4jQueries:
         self.logger.debug(msg=query)
         self.__query_executor.insert_data_multiprocess(query=query, rows=derivations)
 
-    @timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
+    #@timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
     def add_relations(self, relations: List[any]) -> None:
         """
         Adds relations (relationships between activities and entities) to the database.
@@ -302,7 +302,7 @@ class Neo4jQueries:
             self.__query_executor.insert_data_multiprocess(query=query2, rows=generated, act_id=act_id)
             self.__query_executor.insert_data_multiprocess(query=query3, rows=invalidated, act_id=act_id)
 
-    @timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
+    #@timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
     def add_next_operations(self, next_operations: List[any], session=None) -> None:
         """
         Adds relationships between activities representing the order in which they occur.
@@ -339,7 +339,7 @@ class Neo4jQueries:
                 '''
         self.__query_executor.query(query=query, parameters=None, session=session)
 
-    @timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
+    #@timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
     def all_transformations(self, session=None):
         query = f'''
                 MATCH (a:{constants.ACTIVITY_LABEL})
@@ -350,7 +350,7 @@ class Neo4jQueries:
 
         return self.__query_executor.query(query, session=session)
 
-    @timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
+    #@timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
     def why_provenance(self, entity_id: str, session=None):
         query = '''  
                 MATCH (e:''' + constants.ENTITY_LABEL + '''{id:"''' + entity_id + '''"})-[:''' + constants.DERIVATION_RELATION + ''']->(m:''' + constants.ENTITY_LABEL + ''')
@@ -361,7 +361,7 @@ class Neo4jQueries:
 
         return self.__query_executor.query(query, session=session)
 
-    @timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
+    #@timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
     def how_provenance(self, entity_id: str, session=None):
         query = '''  
                 MATCH (e:''' + constants.ENTITY_LABEL + '''{id:"''' + entity_id + '''"})-[:''' + constants.DERIVATION_RELATION + ''']->(m:''' + constants.ENTITY_LABEL + ''') 
@@ -373,7 +373,7 @@ class Neo4jQueries:
 
         return self.__query_executor.query(query, session=session)
 
-    @timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
+    #@timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
     def dataset_level_feature_operation(self, feature: str, session=None):
         query = f'''
                 MATCH (a:{constants.ACTIVITY_LABEL})
@@ -385,7 +385,7 @@ class Neo4jQueries:
 
         return self.__query_executor.query(query, session=session)
 
-    @timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
+    #@timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
     def record_operation(self, index: str, session=None):
         query = f'''
                 MATCH (e:{constants.ENTITY_LABEL})<-[:{constants.USED_RELATION}]-(a:{constants.ACTIVITY_LABEL})
@@ -397,7 +397,7 @@ class Neo4jQueries:
 
         return self.__query_executor.query(query, session=session)
 
-    @timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
+    #@timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
     def item_level_feature_operation(self, entity_id: str, session=None):
         query = '''  
                 MATCH (e:''' + constants.ENTITY_LABEL + '''{id:"''' + entity_id + '''"})-[]-(a:''' + constants.ACTIVITY_LABEL + ''')
@@ -406,7 +406,7 @@ class Neo4jQueries:
         self.logger.debug(msg=query)
         return self.__query_executor.query(query, session=session)
 
-    @timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
+    #@timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
     def item_invalidation(self, entity_id: str, session=None):
         query = '''  
                 MATCH (e:''' + constants.ENTITY_LABEL + '''{id:"''' + entity_id + '''"})-[:''' + constants.INVALIDATION_RELATION + ''']->(a:''' + constants.ACTIVITY_LABEL + ''')
@@ -417,7 +417,7 @@ class Neo4jQueries:
 
         return self.__query_executor.query(query, session=session)
 
-    @timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
+    #@timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
     def feature_invalidation(self, feature: str, session=None):
         query = f'''
                 MATCH (e:{constants.ENTITY_LABEL})-[:{constants.INVALIDATION_RELATION}]->(a:{constants.ACTIVITY_LABEL})
@@ -429,7 +429,7 @@ class Neo4jQueries:
 
         return self.__query_executor.query(query, session=session)
 
-    @timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
+    #@timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
     def record_invalidation(self, index: str, session=None):
         query = f'''
                 MATCH (e:{constants.ENTITY_LABEL})-[:{constants.INVALIDATION_RELATION}]->(a:{constants.ACTIVITY_LABEL})
@@ -441,7 +441,7 @@ class Neo4jQueries:
 
         return self.__query_executor.query(query, session=session)
 
-    @timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
+    #@timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
     def record_history(self, index: str, session=None):
         query = f'''
                 MATCH (e:{constants.ENTITY_LABEL})-[r:{constants.DERIVATION_RELATION}*1..]-(m:{constants.ENTITY_LABEL})
@@ -453,7 +453,7 @@ class Neo4jQueries:
 
         return self.__query_executor.query(query, session=session)
 
-    @timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
+    #@timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
     def item_history(self, entity_id: str, session=None):
         query = '''  
                 MATCH p=(e:''' + constants.ENTITY_LABEL + '''{id:"''' + entity_id + '''"})-[r:''' + constants.DERIVATION_RELATION + '''*1..]-(m:''' + constants.ENTITY_LABEL + ''')
@@ -464,7 +464,7 @@ class Neo4jQueries:
 
         return self.__query_executor.query(query, session=session)
 
-    @timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
+    #@timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
     def get_random_nodes(self, label: str, limit: int = 3, session=None):
         query = f'''
                 MATCH (n:{label})
@@ -478,7 +478,7 @@ class Neo4jQueries:
 
         return self.__query_executor.query(query, session=session)
 
-    @timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
+    #@timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
     def dataset_spread(self, session=None):
         """
         returns number of invalidated and new entities for each activity -> ?
@@ -492,7 +492,7 @@ class Neo4jQueries:
 
         return self.__query_executor.query(query, session=session)
 
-    @timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
+    #@timing(log_file=constants.NEO4j_QUERY_EXECUTION_TIMES)
     def feature_spread(self, feature: str, session=None):
         """
         returns number of invalidated and new entities for each activity that operates on feature -> return activity with max inv and one with max new?

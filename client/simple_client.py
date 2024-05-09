@@ -298,7 +298,7 @@ def main() -> None:
 
     # Call the corresponding function based on the chosen subcommand
     if args.command == "all-transformations":
-        client.all_trasformations()
+        client.all_transformations()
     elif args.command == "why-provenance":
         client.why_provenance(args.entity_id)
     elif args.command == "how-provenance":
